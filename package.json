@@ -1,0 +1,21 @@
+{
+  "name": "06-tcp-server",
+  "version": "1.0.0",
+  "main": "chatroom.js",
+  "scripts": {
+    "test": "jest --verbose --coverage",
+    "lint": "eslint **/*.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^23.1.0"
+  },
+  "dependencies": {
+    "dotenv": "^5.0.1",
+    "eslint": "^4.19.1",
+    "uuid": "^3.2.1"
+  },
+  "description": ""
+}
