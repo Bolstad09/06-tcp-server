@@ -22,6 +22,15 @@ server.on('connection', (socket) => {
   let user = new User(socket);
   socketPool[user.id] = user;
   socket.on('data', (buffer) => dispatchAction(user.id, buffer));
+  
+  user.socket.write(`
+  User Commands:
+  - @ll <writes a message to all users>
+  - @nickname <change username>
+  - @list <shows a list of users>
+  - @dm [username] <send a direct message to user>
+  - @quit <leave the chat>
+`);
 });
 
 let parse = (buffer) => {
@@ -48,35 +57,43 @@ eventEmitter.on('@all', (data, userId) => {
 });
 
 eventEmitter.on('@list', (data, userId) => {
-  let users = [];
-  for (let connection in socketPool) {
-    let currentUser = socketPool[connection];
-    users.push(currentUser.nickname);
+  let listUsers = [];
+  for(let key in socketPool) {
+    let user = socketPool[key];
+    listUsers.push('\n' + user.nickname);
   }
-  let requestingUser = socketPool[userId];
-  requestingUser.socket.write(`<${'' + users}>:`);
+  socketPool[userId].socket.write(`Users: ${listUsers}\n`);
 });
 
 
-eventEmitter.on('@nick', (data, userId) => {
-  socketPool[userId].nickname = data.target;
+eventEmitter.on('@nickname', (data, userId) => {
+  let nickname = socketPool[userId].nickname = data.target;
+  console.log(`nickname changed to ${nickname}`);
 });
 
 eventEmitter.on('@dm', (data, userId) => {
   let findUser = data.target;
   for(let key in socketPool) {
     let user = socketPool[key];
-    if(findUser === user.nick) {
-      user.socket.write(`<${socketPool[userId].nick}>: ${data.message}\n`);
+    if(findUser === user.nickname) {
+      user.socket.write(`<${socketPool[userId].nickname}>: ${data.message}\n`);
     }
   }
 });
 
 eventEmitter.on('@quit', (data, userId) => {
-  let user = socketPool[userId].nick;
-  for(let connection in socketPool) {
-    socketPool[connection].socket.write(`<${user}>: has left.\n`);
+  let user = socketPool[userId].nickname;
+  for(let key in socketPool) {
+    socketPool[key].socket.write(`<${user}>: has left the chat.\n`);
   }
+  socketPool[userId].socket.write(`Chat ended.\n`);
+  socketPool[userId].socket.destroy();
+  delete socketPool[userId];
+
+
+});
+server.on('error', () => {
+  console.log('Error!');
 });
 
 server.listen(PORT, () => {
