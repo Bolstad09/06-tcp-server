@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "chatroom.js",
   "scripts": {
-    "test": "jest --verbose --coverage",
-    "lint": "eslint **/*.js"
+    "test": "jest --coverage --verbose",
+    "lint": "eslint **/*.js",
+    "start": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
